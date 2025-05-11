@@ -21,15 +21,15 @@ public class AuthenticationController {
             @RequestBody AuthRequest request,
             HttpServletResponse response
     ) {
-        String jwt = String.valueOf(authService.authenticate(request.getUsername(), request.getPassword()));
+        AuthResponse authResponse = authService.authenticate(request.getUsername(), request.getPassword());
+        String jwt = authResponse.getToken();
 
-        // Lo enviamos también como Cookie HttpOnly
         Cookie cookie = new Cookie("token", jwt);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(new AuthResponse(jwt));
+        return ResponseEntity.ok(authResponse);
     }
 
     @GetMapping("/ping")

@@ -1,4 +1,4 @@
-package cl.perfulandia.authentication.util;
+package cl.perfulandia.user.util;
 
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
