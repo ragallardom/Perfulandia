@@ -30,7 +30,6 @@ public class ProductController {
                         .name(p.getName())
                         .description(p.getDescription())
                         .price(p.getPrice())
-                        .stock(p.getStock())
                         .category(p.getCategory())
                         .build())
                 .collect(Collectors.toList());
@@ -44,7 +43,6 @@ public class ProductController {
                 .name(p.getName())
                 .description(p.getDescription())
                 .price(p.getPrice())
-                .stock(p.getStock())
                 .category(p.getCategory())
                 .build();
     }
@@ -57,7 +55,6 @@ public class ProductController {
                 .name(p.getName())
                 .description(p.getDescription())
                 .price(p.getPrice())
-                .stock(p.getStock())
                 .category(p.getCategory())
                 .build();
         return ResponseEntity
@@ -74,7 +71,6 @@ public class ProductController {
                 .name(p.getName())
                 .description(p.getDescription())
                 .price(p.getPrice())
-                .stock(p.getStock())
                 .category(p.getCategory())
                 .build();
     }

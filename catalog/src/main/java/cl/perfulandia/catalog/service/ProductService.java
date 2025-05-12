@@ -29,7 +29,6 @@ public class ProductService {
                 .name(req.getName())
                 .description(req.getDescription())
                 .price(req.getPrice())
-                .stock(req.getStock())
                 .category(req.getCategory())
                 .build();
         return repo.save(p);
@@ -40,7 +39,6 @@ public class ProductService {
         existing.setName(req.getName());
         existing.setDescription(req.getDescription());
         existing.setPrice(req.getPrice());
-        existing.setStock(req.getStock());
         existing.setCategory(req.getCategory());
         return repo.save(existing);
     }
