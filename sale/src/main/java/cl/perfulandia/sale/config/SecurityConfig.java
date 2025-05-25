@@ -1,6 +1,6 @@
-package cl.perfulandia.branches.config;
+package cl.perfulandia.sale.config;
 
-import cl.perfulandia.branches.util.JwtUtil;
+import cl.perfulandia.sale.util.JwtUtil;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,13 +22,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/branches/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/branches/").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/branches").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/branches/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/branches/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/branches/*/inventory/product/*")
-                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/sales").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/sales").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);

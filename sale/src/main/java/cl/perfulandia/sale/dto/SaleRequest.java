@@ -12,5 +12,4 @@ public class SaleRequest {
     private Long branchId;
     private Integer quantity;
 
-    // getters and setters
 }

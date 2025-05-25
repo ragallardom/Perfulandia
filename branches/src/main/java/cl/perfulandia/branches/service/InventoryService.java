@@ -8,15 +8,15 @@ import cl.perfulandia.branches.model.Branch;
 import cl.perfulandia.branches.model.BranchInventory;
 import cl.perfulandia.branches.repository.BranchInventoryRepository;
 import cl.perfulandia.branches.repository.BranchRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,7 +40,7 @@ public class InventoryService {
 
     public List<InventoryResponse> getInventoryByBranch(Long branchId) {
         Branch branch = branchRepo.findById(branchId)
-                .orElseThrow(() -> new RuntimeException("Branch not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
 
         ResponseEntity<List<ProductDto>> resp = restTemplate.exchange(
                 catalogUrl + "/products",
@@ -57,9 +57,31 @@ public class InventoryService {
                 .map(inv -> new InventoryResponse(
                         inv.getId(),
                         branch.getName(),
-                        productNames.get(inv.getProductId()),
+                        productNames.getOrDefault(inv.getProductId(), "Unknown Product"),
                         inv.getStock()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Devuelve el stock de un único producto en una sucursal dada.
+     */
+    public InventoryResponse getProductInventory(Long branchId, Long productId) {
+        Branch branch = branchRepo.findById(branchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
+
+        BranchInventory inv = invRepo.findByBranchIdAndProductId(branchId, productId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No inventory record for product " + productId +
+                                " in branch " + branchId));
+
+        String productName = fetchProductName(productId);
+
+        return new InventoryResponse(
+                inv.getId(),
+                branch.getName(),
+                productName,
+                inv.getStock()
+        );
     }
 
     public InventoryResponse createInventory(Long branchId, @Valid InventoryRequest req) {
@@ -77,18 +99,6 @@ public class InventoryService {
         return new InventoryResponse(saved.getId(), branch.getName(), productName, saved.getStock());
     }
 
-    private String fetchProductName(@NotNull Long productId) {
-        ResponseEntity<ProductDto> resp = restTemplate.getForEntity(
-                catalogUrl + "/products/" + productId,
-                ProductDto.class
-        );
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            return resp.getBody().getName();
-        } else {
-            throw new ResourceNotFoundException("Product not found");
-        }
-    }
-
     public InventoryResponse updateInventory(Long branchId, Long invId, InventoryRequest req) {
         BranchInventory inv = invRepo.findById(invId)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory not found"));
@@ -98,7 +108,9 @@ public class InventoryService {
         inv.setStock(req.getStock());
         BranchInventory updated = invRepo.save(inv);
         String productName = fetchProductName(updated.getProductId());
-        String branchName  = branchRepo.findById(branchId).get().getName();
+        String branchName = branchRepo.findById(branchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Branch not found"))
+                .getName();
         return new InventoryResponse(updated.getId(), branchName, productName, updated.getStock());
     }
 
@@ -111,4 +123,18 @@ public class InventoryService {
         invRepo.delete(inv);
     }
 
+    /**
+     * Llama al servicio de catálogo para obtener el nombre de un producto.
+     */
+    private String fetchProductName(@NotNull Long productId) {
+        ResponseEntity<ProductDto> resp = restTemplate.getForEntity(
+                catalogUrl + "/products/" + productId,
+                ProductDto.class
+        );
+        if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
+            return resp.getBody().getName();
+        } else {
+            throw new ResourceNotFoundException("Product not found");
+        }
+    }
 }

@@ -40,4 +40,11 @@ public class InventoryController {
         inventoryService.deleteInventory(branchId, inventoryId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/product/{productId}")
+    public InventoryResponse getProduct(
+            @PathVariable Long branchId,
+            @PathVariable Long productId) {
+        return inventoryService.getProductInventory(branchId, productId);
+    }
 }

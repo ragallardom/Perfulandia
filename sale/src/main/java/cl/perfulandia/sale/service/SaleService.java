@@ -5,8 +5,8 @@ import cl.perfulandia.sale.dto.SaleResponse;
 import cl.perfulandia.sale.model.Sale;
 import cl.perfulandia.sale.repository.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
@@ -21,35 +21,52 @@ public class SaleService {
     @Autowired
     private SaleRepository saleRepository;
 
-    private static final String BRANCH_SERVICE_URL = "http://localhost:8082/branches/inventory";
-    private static final String CATALOG_SERVICE_URL = "http://localhost:8083/catalog/products";
+    @Value("${branch.service.url}")
+    private String branchServiceUrl;
+
+    @Value("${catalog.service.url}")
+    private String catalogServiceUrl;
 
     public SaleResponse createSale(SaleRequest request) {
-        // 1. Check stock
-        String inventoryUrl = String.format("%s/%d/%d", BRANCH_SERVICE_URL,
-                request.getBranchId(), request.getProductId());
-        Map inventoryResponse;
+        String inventoryUrl = String.format("%s/branches/%d/inventory/product/%d",
+                branchServiceUrl, request.getBranchId(), request.getProductId());
+
+        Map<String, Object> inventoryResponse;
         try {
             inventoryResponse = restTemplate.getForObject(inventoryUrl, Map.class);
-        } catch (RestClientException e) {
-            throw new RuntimeException("Error contacting branch service");
+        } catch (Exception e) {
+            throw new RuntimeException("Error contacting branch service: " + e.getMessage());
         }
-        Integer stock = (Integer) inventoryResponse.get("quantity");
+
+        if (inventoryResponse == null || !inventoryResponse.containsKey("stock")) {
+            throw new RuntimeException("Invalid response from branch service");
+        }
+
+        Integer stock = (Integer) inventoryResponse.get("stock");
         if (stock == null || stock < request.getQuantity()) {
             throw new RuntimeException("Insufficient stock in branch");
         }
 
-        // 2. Get product price
-        String productUrl = String.format("%s/%d", CATALOG_SERVICE_URL, request.getProductId());
-        Map productResponse;
+        String productUrl = String.format("%s/products/%d", catalogServiceUrl, request.getProductId());
+
+        Map<String, Object> productResponse;
         try {
             productResponse = restTemplate.getForObject(productUrl, Map.class);
-        } catch (RestClientException e) {
-            throw new RuntimeException("Error contacting catalog service");
+        } catch (Exception e) {
+            throw new RuntimeException("Error contacting catalog service: " + e.getMessage());
         }
-        Double unitPrice = Double.valueOf(productResponse.get("price").toString());
 
-        // 3. Create sale
+        if (productResponse == null || !productResponse.containsKey("price")) {
+            throw new RuntimeException("Invalid response from catalog service");
+        }
+
+        Double unitPrice;
+        try {
+            unitPrice = Double.valueOf(productResponse.get("price").toString());
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Invalid price format from catalog service");
+        }
+
         Sale sale = new Sale();
         sale.setUserId(request.getUserId());
         sale.setProductId(request.getProductId());
@@ -61,12 +78,12 @@ public class SaleService {
 
         Sale saved = saleRepository.save(sale);
 
-        // 4. Build response
         SaleResponse response = new SaleResponse();
         response.setSaleId(saved.getId());
         response.setUnitPrice(saved.getUnitPrice());
         response.setTotalPrice(saved.getTotalPrice());
         response.setTimestamp(saved.getTimestamp());
+
         return response;
     }
 }
