@@ -42,7 +42,6 @@ public class InventoryService {
         Branch branch = branchRepo.findById(branchId)
                 .orElseThrow(() -> new RuntimeException("Branch not found"));
 
-        // Llama al catálogo con RestTemplate
         ResponseEntity<List<ProductDto>> resp = restTemplate.exchange(
                 catalogUrl + "/products",
                 HttpMethod.GET,
