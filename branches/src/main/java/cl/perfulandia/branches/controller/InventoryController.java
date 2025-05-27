@@ -7,12 +7,15 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/branches/{branchId}/inventory")
 public class InventoryController {
     private final InventoryService inventoryService;
+
     public InventoryController(InventoryService inventoryService) {
         this.inventoryService = inventoryService;
     }
@@ -26,11 +29,13 @@ public class InventoryController {
     }
 
     @PutMapping("/{inventoryId}")
-    public InventoryResponse update(
+    public ResponseEntity<InventoryResponse> update(
             @PathVariable Long branchId,
             @PathVariable Long inventoryId,
             @Valid @RequestBody InventoryRequest req) {
-        return inventoryService.updateInventory(branchId, inventoryId, req);
+
+        InventoryResponse resp = inventoryService.updateInventory(branchId, inventoryId, req);
+        return ResponseEntity.ok(resp);
     }
 
     @DeleteMapping("/{inventoryId}")

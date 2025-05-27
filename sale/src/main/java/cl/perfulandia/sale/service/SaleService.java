@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -28,44 +29,57 @@ public class SaleService {
     private String catalogServiceUrl;
 
     public SaleResponse createSale(SaleRequest request) {
-        String inventoryUrl = String.format("%s/branches/%d/inventory/product/%d",
-                branchServiceUrl, request.getBranchId(), request.getProductId());
+        String getInventoryUrl = branchServiceUrl
+                + "/branches/" + request.getBranchId()
+                + "/inventory/product/" + request.getProductId();
 
         Map<String, Object> inventoryResponse;
         try {
-            inventoryResponse = restTemplate.getForObject(inventoryUrl, Map.class);
+            inventoryResponse = restTemplate.getForObject(getInventoryUrl, Map.class);
         } catch (Exception e) {
-            throw new RuntimeException("Error contacting branch service: " + e.getMessage());
+            throw new RuntimeException("Error contactando servicio de sucursales: " + e.getMessage());
         }
 
-        if (inventoryResponse == null || !inventoryResponse.containsKey("stock")) {
-            throw new RuntimeException("Invalid response from branch service");
+        if (inventoryResponse == null || !inventoryResponse.containsKey("stock") || !inventoryResponse.containsKey("id")) {
+            throw new RuntimeException("Respuesta inválida al consultar inventario");
         }
 
-        Integer stock = (Integer) inventoryResponse.get("stock");
-        if (stock == null || stock < request.getQuantity()) {
-            throw new RuntimeException("Insufficient stock in branch");
+        Integer currentStock = (Integer) inventoryResponse.get("stock");
+        Long inventoryId    = ((Number) inventoryResponse.get("id")).longValue();
+
+        if (currentStock < request.getQuantity()) {
+            throw new RuntimeException("Stock insuficiente en la sucursal para el producto ID "
+                    + request.getProductId());
         }
 
-        String productUrl = String.format("%s/products/%d", catalogServiceUrl, request.getProductId());
+        Integer newStock = currentStock - request.getQuantity();
 
+        String updateInventoryUrl = branchServiceUrl
+                + "/branches/" + request.getBranchId()
+                + "/inventory/" + inventoryId;
+
+        Map<String, Object> updateBody = new HashMap<>();
+        updateBody.put("productId", request.getProductId());
+        updateBody.put("stock", newStock);
+
+        try {
+            restTemplate.put(updateInventoryUrl, updateBody);
+        } catch (Exception e) {
+            throw new RuntimeException("No se pudo actualizar stock en sucursal: " + e.getMessage());
+        }
+
+        String productUrl = catalogServiceUrl + "/products/" + request.getProductId();
         Map<String, Object> productResponse;
         try {
             productResponse = restTemplate.getForObject(productUrl, Map.class);
         } catch (Exception e) {
-            throw new RuntimeException("Error contacting catalog service: " + e.getMessage());
+            throw new RuntimeException("Error contactando servicio de catálogo: " + e.getMessage());
         }
-
         if (productResponse == null || !productResponse.containsKey("price")) {
-            throw new RuntimeException("Invalid response from catalog service");
+            throw new RuntimeException("Respuesta inválida al consultar precio de producto");
         }
 
-        Double unitPrice;
-        try {
-            unitPrice = Double.valueOf(productResponse.get("price").toString());
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Invalid price format from catalog service");
-        }
+        Double unitPrice = ((Number) productResponse.get("price")).doubleValue();
 
         Sale sale = new Sale();
         sale.setUserId(request.getUserId());
@@ -83,7 +97,6 @@ public class SaleService {
         response.setUnitPrice(saved.getUnitPrice());
         response.setTotalPrice(saved.getTotalPrice());
         response.setTimestamp(saved.getTimestamp());
-
         return response;
     }
 }

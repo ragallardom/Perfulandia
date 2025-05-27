@@ -24,8 +24,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/branches/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/branches/").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/branches").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/branches/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/branches").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/branches/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/branches/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/branches/*/inventory/product/*")
                         .permitAll()
