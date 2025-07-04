@@ -23,6 +23,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/sales").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/sales/branch/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/sales").permitAll()
                         .anyRequest().authenticated()
                 )
