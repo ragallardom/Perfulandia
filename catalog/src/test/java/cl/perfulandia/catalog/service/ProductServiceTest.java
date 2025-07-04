@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,7 +60,7 @@ class ProductServiceTest {
         ProductRequest req = new ProductRequest();
         req.setName("n");
         req.setDescription("d");
-        req.setPrice(1.0);
+        req.setPrice(BigDecimal.valueOf(1.0));
         req.setCategory("c");
         Product saved = new Product();
         saved.setId(3L);
@@ -81,7 +82,7 @@ class ProductServiceTest {
         ProductRequest req = new ProductRequest();
         req.setName("new");
         req.setDescription("d");
-        req.setPrice(2.0);
+        req.setPrice(BigDecimal.valueOf(2.0));
         req.setCategory("c");
 
         Product result = service.update(4L, req);
