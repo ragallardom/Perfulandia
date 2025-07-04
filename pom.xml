@@ -23,6 +23,9 @@
         <module>catalog</module>
         <module>sale</module>
         <module>user</module>
+        <module>billing</module>
+        <module>logistics</module>
+        <module>suppliers</module>
     </modules>
 
     <properties>
