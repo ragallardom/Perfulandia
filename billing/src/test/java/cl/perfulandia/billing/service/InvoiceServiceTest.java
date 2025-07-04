@@ -1,5 +1,7 @@
 package cl.perfulandia.billing.service;
 
+import cl.perfulandia.billing.dto.InvoiceRequest;
+import cl.perfulandia.billing.dto.InvoiceResponse;
 import cl.perfulandia.billing.model.Invoice;
 import cl.perfulandia.billing.repository.InvoiceRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,14 +31,18 @@ class InvoiceServiceTest {
 
     @Test
     void createInvoiceSavesAndInitializes() {
-        Invoice invoice = new Invoice();
+        InvoiceRequest req = new InvoiceRequest();
+        req.setCustomerName("John");
+        req.setAmount(10.0);
+        req.setPaymentMethod("card");
+
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        Invoice result = service.createInvoice(invoice);
+        InvoiceResponse result = service.createInvoice(req);
 
         assertNotNull(result.getDateIssued());
         assertFalse(result.getPaid());
-        verify(repository).save(invoice);
+        verify(repository).save(any(Invoice.class));
     }
 
     @Test
@@ -46,7 +52,7 @@ class InvoiceServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.of(invoice));
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        Invoice result = service.markAsPaid(1L);
+        InvoiceResponse result = service.markAsPaid(1L);
 
         assertTrue(result.getPaid());
         verify(repository).findById(1L);
@@ -64,11 +70,15 @@ class InvoiceServiceTest {
     @Test
     void getInvoiceByIdReturnsValue() {
         Invoice invoice = new Invoice();
+        invoice.setId(2L);
+        invoice.setCustomerName("Jane");
+        invoice.setAmount(20.0);
+        invoice.setPaymentMethod("cash");
         when(repository.findById(2L)).thenReturn(Optional.of(invoice));
 
-        Invoice result = service.getInvoiceById(2L);
+        InvoiceResponse result = service.getInvoiceById(2L);
 
-        assertSame(invoice, result);
+        assertEquals(2L, result.getId());
         verify(repository).findById(2L);
     }
 }
