@@ -16,7 +16,7 @@ class SupplierServiceTest {
     @Mock
     private SupplierRepository repo;
     @InjectMocks
-    private ServiceProvider service;
+    private SupplierService service;
 
     @BeforeEach
     void init() {
@@ -27,7 +27,7 @@ class SupplierServiceTest {
     void createSupplierSaves() {
         Supplier s = new Supplier();
         when(repo.save(any())).thenReturn(s);
-        Supplier result = service.CreateSupplier(new Supplier());
+        Supplier result = service.createSupplier(new Supplier());
         assertNotNull(result);
         verify(repo).save(any(Supplier.class));
     }

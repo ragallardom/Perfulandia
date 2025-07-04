@@ -36,7 +36,6 @@ public class UserService {
 
     @Transactional
     public UserResponse create(UserRequest req) {
-        System.out.println("RAW password recibida: " + req.getPassword());
 
         User u = User.builder()
                 .username(req.getUsername())
