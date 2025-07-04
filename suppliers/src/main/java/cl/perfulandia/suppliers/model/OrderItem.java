@@ -1,13 +1,15 @@
 package cl.perfulandia.suppliers.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "item_orden")
+@Table(name = "order_item")
+@AllArgsConstructor
 public class OrderItem {
 
     @Id
@@ -15,19 +17,21 @@ public class OrderItem {
     private Long id;
 
     @Column(nullable = false)
-    private String codigoProducto;
+    private String productCode;
 
     @Column(nullable = false)
-    private String nombreProducto;
+    private String productName;
 
     @Column(nullable = false)
-    private Integer cantidad;
+    private Integer quantity;
 
     @Column(nullable = false)
-    private Double precioUnitario;
+    private Double unitPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    private ReplenishmentOrder orden;
+    private ReplenishmentOrder order;
 
+    public OrderItem(String productCode, String productName, Integer quantity, Double unitPrice) {
+    }
 }

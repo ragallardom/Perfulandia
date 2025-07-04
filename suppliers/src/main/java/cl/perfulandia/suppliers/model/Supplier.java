@@ -1,8 +1,12 @@
 package cl.perfulandia.suppliers.model;
 
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
+
 
 @Data
 @NoArgsConstructor
@@ -14,18 +18,32 @@ public class Supplier {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String rut;
+    private String taxId;
 
     @Column(nullable = false)
-    private String nombre;
+    private String name;
 
     @Column(nullable = false)
-    private String direccion;
+    private String address;
 
-    private String telefono;
+    @Column(nullable = false)
+    private String phone;
 
     @Column(nullable = false, unique = true)
     private String email;
 
-    private String tipoProducto;
+    @Column(nullable = false)
+    private String productType;
+
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
+    private List<ReplenishmentOrder> orders;
+
+    public Supplier(String taxId, String name, String address, String phone, String email, String productType) {
+        this.taxId = taxId;
+        this.name = name;
+        this.address = address;
+        this.phone = phone;
+        this.email = email;
+        this.productType = productType;
+    }
 }

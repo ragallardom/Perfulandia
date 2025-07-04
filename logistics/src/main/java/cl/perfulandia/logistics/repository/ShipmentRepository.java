@@ -1,4 +1,9 @@
 package cl.perfulandia.logistics.repository;
 
-public class ShipmentRepository {
+import cl.perfulandia.logistics.model.Shipment;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
+
 }
+

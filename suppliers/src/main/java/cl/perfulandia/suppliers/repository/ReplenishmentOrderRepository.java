@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ReplenishmentOrderRepository extends JpaRepository<ReplenishmentOrder, Long> {
-    List<ReplenishmentOrder> findByProveedorId(Long proveedorId);
-    List<ReplenishmentOrder> findByEstado(ReplenishmentOrder.Estado estado);
-    Optional<ReplenishmentOrder> findByCodigo(String codigo);
+
+public interface ReplenishmentOrderRepository extends JpaRepository<ReplenishmentOrder, Long>{
+    List<ReplenishmentOrder> findBySupplierId(Long supplierId);
+    List<ReplenishmentOrder> findByStatus(ReplenishmentOrder.Status status);
+    Optional<ReplenishmentOrder> findByCode(String code);
 }
