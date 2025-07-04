@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ReplenishmentOrderService {
@@ -24,10 +25,17 @@ public class ReplenishmentOrderService {
 
     @Transactional
     public ReplenishmentOrder createOrder(long supplierId, List<OrderItem> items){
-        Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(()->new RuntimeException("Supplier not found"));
+        Supplier supplier = supplierRepository.findById(supplierId)
+                .orElseThrow(() -> new RuntimeException("Supplier not found"));
 
         ReplenishmentOrder order = new ReplenishmentOrder();
-        // TODO: populate order fields when model is completed
+        order.setCodigo(UUID.randomUUID().toString());
+        order.setProveedor(supplier);
+        order.setEstado(ReplenishmentOrder.Estado.PENDIENTE);
+        order.setItems(items);
+        if (items != null) {
+            items.forEach(i -> i.setOrden(order));
+        }
         return replenishmentOrderRepository.save(order);
     }
 
