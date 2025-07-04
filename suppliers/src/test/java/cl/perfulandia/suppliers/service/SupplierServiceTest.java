@@ -1,6 +1,8 @@
 package cl.perfulandia.suppliers.service;
 
 import cl.perfulandia.suppliers.model.Supplier;
+import cl.perfulandia.suppliers.dto.SupplierRequest;
+import cl.perfulandia.suppliers.dto.SupplierResponse;
 import cl.perfulandia.suppliers.repository.SupplierRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,16 +29,19 @@ class SupplierServiceTest {
 
     @Test
     void createSupplierSaves() {
-        Supplier s = new Supplier();
-        when(repo.save(any())).thenReturn(s);
-        Supplier result = service.createSupplier(new Supplier());
+        Supplier saved = new Supplier();
+        when(repo.save(any())).thenReturn(saved);
+
+        SupplierRequest request = new SupplierRequest();
+        SupplierResponse result = service.createSupplier(request);
+
         assertNotNull(result);
         verify(repo).save(any(Supplier.class));
     }
 
     @Test
     void createSupplierFailsWhenEmailExists() {
-        Supplier s = new Supplier();
+        SupplierRequest s = new SupplierRequest();
         s.setEmail("existing@test.com");
 
         when(repo.existsByTaxId(any())).thenReturn(false);
@@ -52,7 +57,7 @@ class SupplierServiceTest {
         existing.setTaxId("1");
         existing.setEmail("orig@test.com");
 
-        Supplier update = new Supplier();
+        SupplierRequest update = new SupplierRequest();
         update.setTaxId("2");
         update.setEmail("orig@test.com");
 
