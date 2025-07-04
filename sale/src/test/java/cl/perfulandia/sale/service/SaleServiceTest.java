@@ -2,6 +2,7 @@ package cl.perfulandia.sale.service;
 
 import cl.perfulandia.sale.dto.SaleRequest;
 import cl.perfulandia.sale.dto.SaleResponse;
+import cl.perfulandia.sale.dto.SaleDetailResponse;
 import cl.perfulandia.sale.model.Sale;
 import cl.perfulandia.sale.repository.SaleRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -78,5 +80,24 @@ class SaleServiceTest {
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> service.createSale(req));
         assertTrue(ex.getMessage().contains("Error contactando servicio de sucursales"));
+    }
+
+    @Test
+    void getSalesByBranchReturnsMappedResponses() {
+        Sale sale = new Sale();
+        sale.setId(1L);
+        sale.setUserId(2L);
+        sale.setProductId(3L);
+        sale.setBranchId(4L);
+        sale.setQuantity(5);
+        sale.setUnitPrice(1.5);
+        sale.setTotalPrice(7.5);
+        sale.setTimestamp(LocalDateTime.now());
+
+        when(saleRepository.findByBranchId(4L)).thenReturn(List.of(sale));
+
+        List<SaleDetailResponse> responses = service.getSalesByBranch(4L);
+        assertEquals(1, responses.size());
+        assertEquals(3L, responses.get(0).getProductId());
     }
 }

@@ -2,6 +2,7 @@ package cl.perfulandia.sale.service;
 
 import cl.perfulandia.sale.dto.SaleRequest;
 import cl.perfulandia.sale.dto.SaleResponse;
+import cl.perfulandia.sale.dto.SaleDetailResponse;
 import cl.perfulandia.sale.model.Sale;
 import cl.perfulandia.sale.repository.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SaleService {
@@ -98,5 +101,19 @@ public class SaleService {
         response.setTotalPrice(saved.getTotalPrice());
         response.setTimestamp(saved.getTimestamp());
         return response;
+    }
+
+    public List<SaleDetailResponse> getSalesByBranch(Long branchId) {
+        return saleRepository.findByBranchId(branchId).stream()
+                .map(s -> new SaleDetailResponse(
+                        s.getId(),
+                        s.getUserId(),
+                        s.getProductId(),
+                        s.getQuantity(),
+                        s.getUnitPrice(),
+                        s.getTotalPrice(),
+                        s.getTimestamp()
+                ))
+                .collect(Collectors.toList());
     }
 }
