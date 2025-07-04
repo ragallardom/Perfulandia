@@ -33,5 +33,9 @@ public class OrderItem {
     private ReplenishmentOrder order;
 
     public OrderItem(String productCode, String productName, Integer quantity, Double unitPrice) {
+        this.productCode = productCode;
+        this.productName = productName;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
     }
 }

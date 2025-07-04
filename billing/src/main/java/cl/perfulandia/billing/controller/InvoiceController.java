@@ -1,6 +1,7 @@
 package cl.perfulandia.billing.controller;
 
-import cl.perfulandia.billing.model.Invoice;
+import cl.perfulandia.billing.dto.InvoiceRequest;
+import cl.perfulandia.billing.dto.InvoiceResponse;
 import cl.perfulandia.billing.service.InvoiceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,22 +18,22 @@ public class InvoiceController {
     }
 
     @PostMapping
-    public Invoice create(@RequestBody Invoice invoice) {
+    public InvoiceResponse create(@RequestBody InvoiceRequest invoice) {
         return service.createInvoice(invoice);
     }
 
     @GetMapping
-    public List<Invoice> list() {
+    public List<InvoiceResponse> list() {
         return service.getAllInvoices();
     }
 
     @PutMapping("/{id}/pay")
-    public Invoice pay(@PathVariable Long id) {
+    public InvoiceResponse pay(@PathVariable Long id) {
         return service.markAsPaid(id);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Invoice> getById(@PathVariable Long id) {
+    public ResponseEntity<InvoiceResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getInvoiceById(id));
     }
 }

@@ -2,6 +2,8 @@ package cl.perfulandia.billing.service;
 
 import cl.perfulandia.billing.model.Invoice;
 import cl.perfulandia.billing.repository.InvoiceRepository;
+import cl.perfulandia.billing.dto.InvoiceRequest;
+import cl.perfulandia.billing.dto.InvoiceResponse;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,23 +16,42 @@ public class InvoiceService {
         this.repository = repository;
     }
 
-    public Invoice createInvoice(Invoice invoice) {
+    public InvoiceResponse createInvoice(InvoiceRequest request) {
+        Invoice invoice = new Invoice();
+        invoice.setCustomerName(request.getCustomerName());
+        invoice.setAmount(request.getAmount());
+        invoice.setPaymentMethod(request.getPaymentMethod());
         invoice.setDateIssued(LocalDateTime.now());
         invoice.setPaid(false);
-        return repository.save(invoice);
+        return toResponse(repository.save(invoice));
     }
 
-    public List<Invoice> getAllInvoices() {
-        return repository.findAll();
+    public List<InvoiceResponse> getAllInvoices() {
+        return repository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Invoice markAsPaid(Long id) {
+    public InvoiceResponse markAsPaid(Long id) {
         Invoice invoice = repository.findById(id).orElseThrow();
         invoice.setPaid(true);
-        return repository.save(invoice);
+        return toResponse(repository.save(invoice));
     }
 
-    public Invoice getInvoiceById(Long id) {
-        return repository.findById(id).orElseThrow();
+    public InvoiceResponse getInvoiceById(Long id) {
+        return repository.findById(id)
+                .map(this::toResponse)
+                .orElseThrow();
+    }
+
+    private InvoiceResponse toResponse(Invoice invoice) {
+        InvoiceResponse resp = new InvoiceResponse();
+        resp.setId(invoice.getId());
+        resp.setCustomerName(invoice.getCustomerName());
+        resp.setAmount(invoice.getAmount());
+        resp.setDateIssued(invoice.getDateIssued());
+        resp.setPaid(invoice.getPaid());
+        resp.setPaymentMethod(invoice.getPaymentMethod());
+        return resp;
     }
 }
