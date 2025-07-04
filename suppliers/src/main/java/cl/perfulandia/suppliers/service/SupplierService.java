@@ -9,16 +9,16 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ServiceProvider {
+public class SupplierService {
 
     private final SupplierRepository supplierRepository;
 
-    public ServiceProvider(SupplierRepository supplierRepository) {
+    public SupplierService(SupplierRepository supplierRepository) {
         this.supplierRepository = supplierRepository;
     }
 
     @Transactional
-    public Supplier CreateSupplier(Supplier supplier){
+    public Supplier createSupplier(Supplier supplier) {
         if(supplierRepository.existsByRut(supplier.getRut())){
             throw new IllegalArgumentException("Provider already exists");
         }
@@ -29,7 +29,7 @@ public class ServiceProvider {
     }
 
     @Transactional(readOnly = true)
-    public List<Supplier> ListSupplier(){
+    public List<Supplier> listSuppliers() {
         return supplierRepository.findAll();
     }
 
@@ -39,32 +39,32 @@ public class ServiceProvider {
     }
 
     @Transactional( readOnly = true)
-    public Optional<Supplier> GetSupplierByRut (long id){
+    public Optional<Supplier> getSupplierById(long id) {
         return supplierRepository.findById(id);
     }
 
 
     @Transactional(readOnly = true)
-    public Supplier updateSupplier (Long id, Supplier supplierUpdate){
-        return SupplierRepository.findById(id).map(Supplier ->{
-            if(!Supplier.getRut().equals(supplierUpdate.getRut()) && SupplierRepository.existsByRut(supplierUpdate.getRut())){
+    public Supplier updateSupplier(Long id, Supplier supplierUpdate) {
+        return supplierRepository.findById(id).map(existing -> {
+            if (!existing.getRut().equals(supplierUpdate.getRut()) && supplierRepository.existsByRut(supplierUpdate.getRut())) {
                 throw new IllegalArgumentException("Provider already exists");
             }
-            if (!Supplier.getEmail().equals(supplierUpdate.getEmail()) && SupplierRepository.existsByEmail(supplierUpdate.getEmail())) {
+            if (!existing.getEmail().equals(supplierUpdate.getEmail()) && supplierRepository.existsByEmail(supplierUpdate.getEmail())) {
                 throw new IllegalArgumentException("Email already exists");
             }
-            Supplier.setNombre(supplierUpdate.getNombre());
-            Supplier.setDireccion(supplierUpdate.getDireccion());
-            Supplier.setTelefono(supplierUpdate.getTelefono());
-            Supplier.setEmail(supplierUpdate.getEmail());
-            Supplier.setTipoProducto(supplierUpdate.getTipoProducto());
-            return supplierRepository.save(Supplier);
-        }).orElseThrow(() -> new IllegalArgumentException("Supplier don't found by id:"+ id));
+            existing.setNombre(supplierUpdate.getNombre());
+            existing.setDireccion(supplierUpdate.getDireccion());
+            existing.setTelefono(supplierUpdate.getTelefono());
+            existing.setEmail(supplierUpdate.getEmail());
+            existing.setTipoProducto(supplierUpdate.getTipoProducto());
+            return supplierRepository.save(existing);
+        }).orElseThrow(() -> new IllegalArgumentException("Supplier don't found by id:" + id));
     }
 
     @Transactional
-    public void deleteSupplier (Long id){
-        SupplierRepository.deleteById(id);
+    public void deleteSupplier(Long id) {
+        supplierRepository.deleteById(id);
     }
 
 }

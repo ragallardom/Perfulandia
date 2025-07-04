@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ProviderRepository extends JpaRepository <Supplier, Long>{
+public interface SupplierRepository extends JpaRepository<Supplier, Long> {
     Optional<Supplier> findByRut(String rut);
     Optional<Supplier> findByEmail(String email);
     boolean existsByRut(String rut);
