@@ -1,5 +1,7 @@
 package cl.perfulandia.logistics.service;
 
+import cl.perfulandia.logistics.dto.ShipmentRequest;
+import cl.perfulandia.logistics.dto.ShipmentResponse;
 import cl.perfulandia.logistics.model.Shipment;
 import cl.perfulandia.logistics.repository.ShipmentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,14 +30,18 @@ class ShipmentServiceTest {
 
     @Test
     void createShipmentInitializesAndSaves() {
-        Shipment shipment = new Shipment();
+        ShipmentRequest req = new ShipmentRequest();
+        req.setOrderCode("O1");
+        req.setOrigin("Orig");
+        req.setDestination("Dest");
+
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        Shipment result = service.createShipment(shipment);
+        ShipmentResponse result = service.createShipment(req);
 
         assertNotNull(result.getCreatedAt());
         assertEquals("Preparando", result.getCurrentStatus());
-        verify(repository).save(shipment);
+        verify(repository).save(any(Shipment.class));
     }
 
     @Test
@@ -45,7 +51,7 @@ class ShipmentServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.of(shipment));
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        Shipment result = service.updateStatus(1L, "Enviado");
+        ShipmentResponse result = service.updateStatus(1L, "Enviado");
 
         assertEquals("Enviado", result.getCurrentStatus());
         verify(repository).findById(1L);
