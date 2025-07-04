@@ -1,10 +1,13 @@
 package cl.perfulandia.catalog.util;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.util.Date;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class JwtUtil {
@@ -16,10 +19,12 @@ public class JwtUtil {
     private long expirationMs;
 
     private JwtParser parser;
+    private SecretKey key;
 
     @PostConstruct
     public void init() {
-        this.parser = Jwts.parserBuilder().setSigningKey(secret.getBytes()).build();
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.parser = Jwts.parserBuilder().setSigningKey(key).build();
     }
 
     public String generateToken(String username, String role) {
@@ -28,7 +33,7 @@ public class JwtUtil {
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
-                .signWith(SignatureAlgorithm.HS256, secret.getBytes())
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
