@@ -2,6 +2,8 @@ package cl.perfulandia.logistics.service;
 
 import cl.perfulandia.logistics.model.Shipment;
 import cl.perfulandia.logistics.repository.ShipmentRepository;
+import cl.perfulandia.logistics.dto.ShipmentRequest;
+import cl.perfulandia.logistics.dto.ShipmentResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,23 +18,41 @@ public class ShipmentService {
         this.repository = repository;
     }
 
-    public Shipment createShipment(Shipment shipment) {
+    public ShipmentResponse createShipment(ShipmentRequest request) {
+        Shipment shipment = new Shipment();
+        shipment.setOrderCode(request.getOrderCode());
+        shipment.setOrigin(request.getOrigin());
+        shipment.setDestination(request.getDestination());
         shipment.setCreatedAt(LocalDateTime.now());
         shipment.setUpdatedAt(LocalDateTime.now());
         shipment.setCurrentStatus("Preparando");
-        return repository.save(shipment);
+        return toResponse(repository.save(shipment));
     }
 
-    public List<Shipment> getAllShipments() {
-        return repository.findAll();
+    public List<ShipmentResponse> getAllShipments() {
+        return repository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Shipment updateStatus(Long id, String status) {
+    public ShipmentResponse updateStatus(Long id, String status) {
         Shipment shipment = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Shipment not found"));
         shipment.setCurrentStatus(status);
         shipment.setUpdatedAt(LocalDateTime.now());
-        return repository.save(shipment);
+        return toResponse(repository.save(shipment));
+    }
+
+    private ShipmentResponse toResponse(Shipment shipment) {
+        ShipmentResponse resp = new ShipmentResponse();
+        resp.setId(shipment.getId());
+        resp.setOrderCode(shipment.getOrderCode());
+        resp.setCurrentStatus(shipment.getCurrentStatus());
+        resp.setOrigin(shipment.getOrigin());
+        resp.setDestination(shipment.getDestination());
+        resp.setCreatedAt(shipment.getCreatedAt());
+        resp.setUpdatedAt(shipment.getUpdatedAt());
+        return resp;
     }
 
 

@@ -1,4 +1,4 @@
-package cl.perfulandia.suppliers.controller;
+package cl.perfulandia.suppliers.dto;
 
 public class OrderItemRequest {
     private String productCode;

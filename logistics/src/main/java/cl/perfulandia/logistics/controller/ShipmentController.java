@@ -1,6 +1,7 @@
 package cl.perfulandia.logistics.controller;
 
-import cl.perfulandia.logistics.model.Shipment;
+import cl.perfulandia.logistics.dto.ShipmentRequest;
+import cl.perfulandia.logistics.dto.ShipmentResponse;
 import cl.perfulandia.logistics.service.ShipmentService;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,17 +17,17 @@ public class ShipmentController {
     }
 
     @PostMapping
-    public Shipment create(@RequestBody Shipment shipment) {
+    public ShipmentResponse create(@RequestBody ShipmentRequest shipment) {
         return service.createShipment(shipment);
     }
 
     @GetMapping
-    public List<Shipment> list() {
+    public List<ShipmentResponse> list() {
         return service.getAllShipments();
     }
 
     @PutMapping("/{id}/status")
-    public Shipment updateStatus(@PathVariable Long id, @RequestParam String status) {
+    public ShipmentResponse updateStatus(@PathVariable Long id, @RequestParam String status) {
         return service.updateStatus(id, status);
     }
 }

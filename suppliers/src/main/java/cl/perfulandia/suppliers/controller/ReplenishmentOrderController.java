@@ -1,6 +1,8 @@
 package cl.perfulandia.suppliers.controller;
 import cl.perfulandia.suppliers.model.OrderItem;
 import cl.perfulandia.suppliers.model.ReplenishmentOrder;
+import cl.perfulandia.suppliers.dto.OrderItemRequest;
+import cl.perfulandia.suppliers.dto.ReplenishmentOrderResponse;
 import cl.perfulandia.suppliers.service.ReplenishmentOrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,7 @@ public class ReplenishmentOrderController {
     }
 
     @PostMapping
-    public ResponseEntity<ReplenishmentOrder> createOrder(
+    public ResponseEntity<ReplenishmentOrderResponse> createOrder(
             @RequestParam Long supplierId,
             @RequestBody List<OrderItemRequest> itemsRequest) {
 
@@ -31,31 +33,31 @@ public class ReplenishmentOrderController {
                 ))
                 .toList();
 
-        ReplenishmentOrder order = orderService.createOrder(supplierId, items);
+        ReplenishmentOrderResponse order = orderService.createOrder(supplierId, items);
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }
 
     @GetMapping("/supplier/{supplierId}")
-    public ResponseEntity<List<ReplenishmentOrder>> getOrdersBySupplier(
+    public ResponseEntity<List<ReplenishmentOrderResponse>> getOrdersBySupplier(
             @PathVariable Long supplierId) {
-        List<ReplenishmentOrder> orders = orderService.getOrdersBySupplier(supplierId);
+        List<ReplenishmentOrderResponse> orders = orderService.getOrdersBySupplier(supplierId);
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReplenishmentOrder> getOrderById(@PathVariable Long id) {
+    public ResponseEntity<ReplenishmentOrderResponse> getOrderById(@PathVariable Long id) {
         return orderService.getOrderById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<ReplenishmentOrder> updateOrderStatus(
+    public ResponseEntity<ReplenishmentOrderResponse> updateOrderStatus(
             @PathVariable Long id, @RequestParam String status) {
         try {
             ReplenishmentOrder.Status newStatus =
                     ReplenishmentOrder.Status.valueOf(status.toUpperCase());
-            ReplenishmentOrder order = orderService.updateOrderStatus(id, newStatus);
+            ReplenishmentOrderResponse order = orderService.updateOrderStatus(id, newStatus);
             return ResponseEntity.ok(order);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -63,12 +65,12 @@ public class ReplenishmentOrderController {
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<ReplenishmentOrder>> getOrdersByStatus(
+    public ResponseEntity<List<ReplenishmentOrderResponse>> getOrdersByStatus(
             @PathVariable String status) {
         try {
             ReplenishmentOrder.Status statusEnum =
                     ReplenishmentOrder.Status.valueOf(status.toUpperCase());
-            List<ReplenishmentOrder> orders = orderService.getOrdersByStatus(statusEnum);
+            List<ReplenishmentOrderResponse> orders = orderService.getOrdersByStatus(statusEnum);
             return ResponseEntity.ok(orders);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();

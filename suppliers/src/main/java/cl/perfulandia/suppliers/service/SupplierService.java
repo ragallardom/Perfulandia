@@ -2,6 +2,8 @@ package cl.perfulandia.suppliers.service;
 
 import cl.perfulandia.suppliers.model.Supplier;
 import cl.perfulandia.suppliers.repository.SupplierRepository;
+import cl.perfulandia.suppliers.dto.SupplierRequest;
+import cl.perfulandia.suppliers.dto.SupplierResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,33 +20,43 @@ public class SupplierService {
     }
 
     @Transactional
-    public Supplier createSupplier(Supplier supplier) {
+    public SupplierResponse createSupplier(SupplierRequest request) {
+        Supplier supplier = new Supplier(
+                request.getTaxId(),
+                request.getName(),
+                request.getAddress(),
+                request.getPhone(),
+                request.getEmail(),
+                request.getProductType()
+        );
         if (supplierRepository.existsByTaxId(supplier.getTaxId())) {
             throw new IllegalArgumentException("Supplier with this tax ID already exists");
         }
         if (supplierRepository.existsByEmail(supplier.getEmail())) {
             throw new IllegalArgumentException("Supplier with this email already exists");
         }
-        return supplierRepository.save(supplier);
+        return toResponse(supplierRepository.save(supplier));
     }
 
     @Transactional(readOnly = true)
-    public List<Supplier> getAllSuppliers() {
-        return supplierRepository.findAll();
+    public List<SupplierResponse> getAllSuppliers() {
+        return supplierRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public Optional<Supplier> getSupplierById(Long id) {
-        return supplierRepository.findById(id);
+    public Optional<SupplierResponse> getSupplierById(Long id) {
+        return supplierRepository.findById(id).map(this::toResponse);
     }
 
     @Transactional(readOnly = true)
-    public Optional<Supplier> getSupplierByTaxId(String taxId) {
-        return supplierRepository.findByTaxId(taxId);
+    public Optional<SupplierResponse> getSupplierByTaxId(String taxId) {
+        return supplierRepository.findByTaxId(taxId).map(this::toResponse);
     }
 
     @Transactional
-    public Supplier updateSupplier(Long id, Supplier updatedSupplier) {
+    public SupplierResponse updateSupplier(Long id, SupplierRequest updatedSupplier) {
         return supplierRepository.findById(id)
                 .map(supplier -> {
                     if (!supplier.getTaxId().equals(updatedSupplier.getTaxId()) &&
@@ -60,7 +72,7 @@ public class SupplierService {
                     supplier.setPhone(updatedSupplier.getPhone());
                     supplier.setEmail(updatedSupplier.getEmail());
                     supplier.setProductType(updatedSupplier.getProductType());
-                    return supplierRepository.save(supplier);
+                    return toResponse(supplierRepository.save(supplier));
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Supplier not found with ID: " + id));
     }
@@ -68,5 +80,17 @@ public class SupplierService {
     @Transactional
     public void deleteSupplier(Long id) {
         supplierRepository.deleteById(id);
+    }
+
+    private SupplierResponse toResponse(Supplier supplier) {
+        SupplierResponse resp = new SupplierResponse();
+        resp.setId(supplier.getId());
+        resp.setTaxId(supplier.getTaxId());
+        resp.setName(supplier.getName());
+        resp.setAddress(supplier.getAddress());
+        resp.setPhone(supplier.getPhone());
+        resp.setEmail(supplier.getEmail());
+        resp.setProductType(supplier.getProductType());
+        return resp;
     }
 }
