@@ -2,6 +2,7 @@ package cl.perfulandia.suppliers.controller;
 import cl.perfulandia.suppliers.model.OrderItem;
 import cl.perfulandia.suppliers.model.ReplenishmentOrder;
 import cl.perfulandia.suppliers.dto.OrderItemRequest;
+import cl.perfulandia.suppliers.dto.ReplenishmentOrderRequest;
 import cl.perfulandia.suppliers.dto.ReplenishmentOrderResponse;
 import cl.perfulandia.suppliers.service.ReplenishmentOrderService;
 import org.springframework.http.HttpStatus;
@@ -21,8 +22,10 @@ public class ReplenishmentOrderController {
 
     @PostMapping
     public ResponseEntity<ReplenishmentOrderResponse> createOrder(
-            @RequestParam Long supplierId,
-            @RequestBody List<OrderItemRequest> itemsRequest) {
+            @RequestBody ReplenishmentOrderRequest request) {
+
+        Long supplierId = request.getSupplierId();
+        List<OrderItemRequest> itemsRequest = request.getItems();
 
         List<OrderItem> items = itemsRequest.stream()
                 .map(item -> new OrderItem(
