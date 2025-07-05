@@ -25,6 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/invoices/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/invoices").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/invoices/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
