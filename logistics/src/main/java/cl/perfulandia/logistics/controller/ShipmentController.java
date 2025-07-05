@@ -21,7 +21,7 @@ public class ShipmentController {
         return service.createShipment(shipment);
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public List<ShipmentResponse> list() {
         return service.getAllShipments();
     }

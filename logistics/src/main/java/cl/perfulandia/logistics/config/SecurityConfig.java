@@ -25,6 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/shipments/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/shipments").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/shipments").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
