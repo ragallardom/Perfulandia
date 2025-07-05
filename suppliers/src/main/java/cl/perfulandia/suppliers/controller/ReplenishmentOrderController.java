@@ -24,6 +24,11 @@ public class ReplenishmentOrderController {
     public ResponseEntity<ReplenishmentOrderResponse> createOrder(
             @RequestBody ReplenishmentOrderRequest request) {
 
+        if (request == null || request.getSupplierId() == null ||
+                request.getItems() == null || request.getItems().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         Long supplierId = request.getSupplierId();
         List<OrderItemRequest> itemsRequest = request.getItems();
 
