@@ -1,7 +1,6 @@
 package cl.perfulandia.suppliers.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,7 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "order_item")
-@AllArgsConstructor
 public class OrderItem {
 
     @Id
